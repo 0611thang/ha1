@@ -22,18 +22,24 @@ public class Calculator {
     }
 
     /**
-     * Empfängt den Wert einer gedrückten Zifferntaste. Da man nur eine Taste auf einmal
-     * drücken kann muss der Wert positiv und einstellig sein und zwischen 0 und 9 liegen.
-     * Führt in jedem Fall dazu, dass die gerade gedrückte Ziffer auf dem Bildschirm angezeigt
-     * oder rechts an die zuvor gedrückte Ziffer angehängt angezeigt wird.
-     * @param digit Die Ziffer, deren Taste gedrückt wurde
-     */
+    * Empfängt den Wert einer gedrückten Zifferntaste. Da man nur eine Taste auf einmal
+    * drücken kann, muss der Wert positiv und einstellig sein und zwischen 0 und 9 liegen.
+    * Führt in jedem Fall dazu, dass die gerade gedrückte Ziffer auf dem Bildschirm angezeigt
+    * oder rechts an die zuvor gedrückte Ziffer angehängt angezeigt wird.
+    * Falls der Bildschirm aktuell nur eine "0" anzeigt (und kein Dezimalpunkt vorhanden ist),
+    * wird diese zunächst entfernt, bevor die neue Ziffer angezeigt wird. Dies verhindert,
+    * dass führende Nullen entstehen.
+    * @param digit Die Ziffer, deren Taste gedrückt wurde
+    * @throws IllegalArgumentException falls der übergebene Wert nicht zwischen 0 und 9 liegt
+    */
+
     public void pressDigitKey(int digit) {
         if(digit > 9 || digit < 0) throw new IllegalArgumentException();
-
-        if(screen.equals("0") || latestValue == Double.parseDouble(screen)) screen = "";
-
-        screen = screen + digit;
+    
+        if(screen.equals("0") && !screen.contains(".")) {
+            screen = "";
+        }
+        screen += digit;
     }
 
     /**
@@ -97,16 +103,18 @@ public class Calculator {
     }
 
     /**
-     * Empfängt den Befehl der gedrückten Dezimaltrennzeichentaste, im Englischen üblicherweise "."
-     * Fügt beim ersten Mal Drücken dem aktuellen Bildschirminhalt das Trennzeichen auf der rechten
-     * Seite hinzu und aktualisiert den Bildschirm. Daraufhin eingegebene Zahlen werden rechts vom
-     * Trennzeichen angegeben und daher als Dezimalziffern interpretiert.
-     * Beim zweimaligem Drücken, oder wenn bereits ein Trennzeichen angezeigt wird, passiert nichts.
-     */
+    * Empfängt den Befehl der gedrückten Dezimaltrennzeichentaste, im Englischen üblicherweise ".".
+    * Fügt beim ersten Drücken dem aktuellen Bildschirminhalt das Dezimaltrennzeichen auf der rechten
+    * Seite hinzu und aktualisiert den Bildschirm entsprechend. Zahlen, die danach eingegeben werden,
+    * erscheinen rechts vom Punkt und werden als Nachkommastellen interpretiert.
+    * Falls der Bildschirm leer ist oder nur eine "0" enthält, wird das Trennzeichen als "0." angezeigt,
+    * um eine gültige Dezimalzahl darzustellen.
+    */
     public void pressDotKey() {
-        if(!screen.contains(".")) screen = screen + ".";
+        if(!screen.contains(".")) {
+            screen = (screen.equals("0") || screen.isEmpty()) ? "0." : screen + ".";
+        }
     }
-
     /**
      * Empfängt den Befehl der gedrückten Vorzeichenumkehrstaste ("+/-").
      * Zeigt der Bildschirm einen positiven Wert an, so wird ein "-" links angehängt, der Bildschirm
@@ -140,18 +148,18 @@ public class Calculator {
         if(screen.endsWith(".0")) screen = screen.substring(0,screen.length()-2);
         if(screen.contains(".") && screen.length() > 11) screen = screen.substring(0, 10);
     } 
-/**
- * Führt eine binäre Rechenoperation auf zwei gegebenen Operanden aus.
- * Unterstützt Addition, Subtraktion, Multiplikation und Division.
- * Bei einer Division durch null wird der Wert Double.POSITIVE_INFINITY zurückgegeben,
- * um Rechenfehler zu vermeiden.
- * @param operation Die Rechenoperation als String: "+" für Addition, "-" für Subtraktion,
- *                  "x" für Multiplikation oder "/" für Division.
- * @param left Der linke Operand der Rechenoperation.
- * @param right Der rechte Operand der Rechenoperation.
- * @return Das Ergebnis der Rechenoperation.
- * @throws IllegalArgumentException falls eine unbekannte Operation übergeben wird.
- */
+    /**
+    * Führt eine binäre Rechenoperation auf zwei gegebenen Operanden aus.
+    * Unterstützt Addition, Subtraktion, Multiplikation und Division.
+    * Bei einer Division durch null wird der Wert Double.POSITIVE_INFINITY zurückgegeben,
+    * um Rechenfehler zu vermeiden.
+    * @param operation Die Rechenoperation als String: "+" für Addition, "-" für Subtraktion,
+    *                  "x" für Multiplikation oder "/" für Division.
+    * @param left Der linke Operand der Rechenoperation.
+    * @param right Der rechte Operand der Rechenoperation.
+    * @return Das Ergebnis der Rechenoperation.
+    * @throws IllegalArgumentException falls eine unbekannte Operation übergeben wird.
+    */
 
     private double applyOperation(String operation, double left, double right) {
         return switch (operation) {
