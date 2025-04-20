@@ -56,12 +56,22 @@ public class Calculator {
      * Beim ersten Drücken der Taste wird der Bildschirminhalt nicht verändert, sondern nur der
      * Rechner in den passenden Operationsmodus versetzt.
      * Beim zweiten Drücken nach Eingabe einer weiteren Zahl wird direkt des aktuelle Zwischenergebnis
-     * auf dem Bildschirm angezeigt. Falls hierbei eine Division durch Null auftritt, wird "Error" angezeigt.
+     * auf dem Bildschirm angezeigt. Wird danach eine weitere Zahl eingegeben und erneut eine Operationstaste gedrückt, wird das 
+     * Zwischenergebnis aus der vorherigen Operation automatisch berechnet und als neuer Ausgangswert 
+     * verwendet. Dadurch wird die fortlaufende Berechnung von verketteten Operationen ermöglicht. Falls hierbei eine Division durch Null auftritt, wird "Error" angezeigt.
      * @param operation "+" für Addition, "-" für Substraktion, "x" für Multiplikation, "/" für Division
      */
-    public void pressBinaryOperationKey(String operation)  {
-        latestValue = Double.parseDouble(screen);
+    public void pressBinaryOperationKey(String operation) {
+        double currentValue = Double.parseDouble(screen);
+    
+        if (!latestOperation.isEmpty()) {
+            currentValue = applyOperation(latestOperation, latestValue, currentValue);
+            screen = String.valueOf(currentValue);
+        }
+    
+        latestValue = currentValue;
         latestOperation = operation;
+        screen = "0";
     }
 
     /**
@@ -129,5 +139,28 @@ public class Calculator {
         if(screen.equals("Infinity")) screen = "Error";
         if(screen.endsWith(".0")) screen = screen.substring(0,screen.length()-2);
         if(screen.contains(".") && screen.length() > 11) screen = screen.substring(0, 10);
+    } 
+/**
+ * Führt eine binäre Rechenoperation auf zwei gegebenen Operanden aus.
+ * Unterstützt Addition, Subtraktion, Multiplikation und Division.
+ * Bei einer Division durch null wird der Wert Double.POSITIVE_INFINITY zurückgegeben,
+ * um Rechenfehler zu vermeiden.
+ * @param operation Die Rechenoperation als String: "+" für Addition, "-" für Subtraktion,
+ *                  "x" für Multiplikation oder "/" für Division.
+ * @param left Der linke Operand der Rechenoperation.
+ * @param right Der rechte Operand der Rechenoperation.
+ * @return Das Ergebnis der Rechenoperation.
+ * @throws IllegalArgumentException falls eine unbekannte Operation übergeben wird.
+ */
+
+    private double applyOperation(String operation, double left, double right) {
+        return switch (operation) {
+            case "+" -> left + right;
+            case "-" -> left - right;
+            case "x" -> left * right;
+            case "/" -> right == 0 ? Double.POSITIVE_INFINITY : left / right;
+            default -> throw new IllegalArgumentException("Unknown operation: " + operation);
+        };
     }
+
 }
