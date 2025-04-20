@@ -106,5 +106,25 @@ class CalculatorTest {
          assertEquals(expected, actual);
  
      }
+
+     @Test
+     @DisplayName("should handle consecutive subtractions correctly")
+     void testConsecutiveSubtraction() {
+         Calculator calc = new Calculator();
+ 
+         calc.pressDigitKey(9);
+         calc.pressBinaryOperationKey("-");
+         calc.pressDigitKey(3);
+         calc.pressBinaryOperationKey("-");
+         calc.pressDigitKey(3);
+         calc.pressEqualsKey();
+ 
+         String expected = "3";
+         String actual = calc.readScreen();
+ 
+         assertEquals(expected, actual);
+     }
+
+
 }
 
