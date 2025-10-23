@@ -57,12 +57,57 @@ public class Calculator {
      * Rechner in den passenden Operationsmodus versetzt.
      * Beim zweiten Drücken nach Eingabe einer weiteren Zahl wird direkt des aktuelle Zwischenergebnis
      * auf dem Bildschirm angezeigt. Falls hierbei eine Division durch Null auftritt, wird "Error" angezeigt.
+     * Die Methode wurde daraufhin erweitert, damit wir die Zwischenergebnisse sofort berechnet werden, wenn
+     * neue Operationen gedrückt werden. Dies stellt hierbei sicher, dass die aufeinanderfolgenden Operationen
+     * korrekt verarbeitet werden.
      * @param operation "+" für Addition, "-" für Substraktion, "x" für Multiplikation, "/" für Division
      */
-    public void pressBinaryOperationKey(String operation)  {
-        latestValue = Double.parseDouble(screen);
+    public void pressBinaryOperationKey(String operation) {
+        double currentValue = Double.parseDouble(screen);
+
+        // Wenn vorher schon eine Operation aktiv war, rechne sie zuerst
+        if (!latestOperation.isEmpty()) {
+            double result = 0;
+
+            switch (latestOperation) {
+                case "+":
+                    result = latestValue + currentValue;
+                    break;
+                case "-":
+                    result = latestValue - currentValue;
+                    break;
+                case "x":
+                    result = latestValue * currentValue;
+                    break;
+                case "/":
+                    if (currentValue == 0) {
+                        screen = "Error";
+                        latestOperation = "";
+                        latestValue = 0;
+                        return;
+                    } else {
+                        result = latestValue / currentValue;
+                    }
+                    break;
+            }
+
+            // Ergebnis auf Bildschirm anzeigen
+            screen = Double.toString(result);
+            if (screen.endsWith(".0")) screen = screen.substring(0, screen.length() - 2);
+
+            latestValue = result;
+        } else {
+            latestValue = currentValue;
+        }
+
+        // Neue Operation speichern
         latestOperation = operation;
+
+        // Bildschirm für die nächste Zahl zurücksetzen
+        screen = "0";
     }
+
+
 
     /**
      * Empfängt den Wert einer gedrückten unären Operationstaste, also eine der drei Operationen
