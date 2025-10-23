@@ -23,18 +23,22 @@ public class Calculator {
 
     /**
      * Empfängt den Wert einer gedrückten Zifferntaste. Da man nur eine Taste auf einmal
-     * drücken kann muss der Wert positiv und einstellig sein und zwischen 0 und 9 liegen.
-     * Führt in jedem Fall dazu, dass die gerade gedrückte Ziffer auf dem Bildschirm angezeigt
-     * oder rechts an die zuvor gedrückte Ziffer angehängt angezeigt wird.
+     * drücken kann, muss der Wert positiv und einstellig sein und zwischen 0 und 9 liegen.
+     * Wenn der Bildschirm aktuell "0" anzeigt und noch kein Dezimalpunkt vorhanden ist,
+     * wird die führende Null entfernt, bevor die neue Ziffer angezeigt wird.
+     * Ansonsten wird die Ziffer rechts an den bestehenden Wert angehängt.
+     * Dadurch können Zahlen korrekt aufgebaut werden, ohne dass führende Nullen bleiben.
      * @param digit Die Ziffer, deren Taste gedrückt wurde
      */
     public void pressDigitKey(int digit) {
         if(digit > 9 || digit < 0) throw new IllegalArgumentException();
 
-        if(screen.equals("0") || latestValue == Double.parseDouble(screen)) screen = "";
-
-        screen = screen + digit;
+        if(screen.equals("0") && !screen.contains(".")) {
+            screen = "";
+        }
+        screen += digit;
     }
+
 
     /**
      * Empfängt den Befehl der C- bzw. CE-Taste (Clear bzw. Clear Entry).
@@ -132,15 +136,24 @@ public class Calculator {
     }
 
     /**
-     * Empfängt den Befehl der gedrückten Dezimaltrennzeichentaste, im Englischen üblicherweise "."
-     * Fügt beim ersten Mal Drücken dem aktuellen Bildschirminhalt das Trennzeichen auf der rechten
-     * Seite hinzu und aktualisiert den Bildschirm. Daraufhin eingegebene Zahlen werden rechts vom
-     * Trennzeichen angegeben und daher als Dezimalziffern interpretiert.
-     * Beim zweimaligem Drücken, oder wenn bereits ein Trennzeichen angezeigt wird, passiert nichts.
+     * Empfängt den Befehl der gedrückten Dezimaltrennzeichentaste (".").
+     * Wenn noch kein Dezimalpunkt auf dem Bildschirm vorhanden ist, wird er hinzugefügt:
+     * - Steht aktuell nur "0" oder ist der Bildschirm leer, wird "0." angezeigt,
+     *   damit die Zahl korrekt als Dezimalzahl interpretiert wird.
+     * - Steht bereits eine andere Zahl auf dem Bildschirm, wird der Dezimalpunkt
+     *   rechts an die vorhandene Zahl angehängt.
+     * Wird die Taste erneut gedrückt, passiert nichts, da nur ein Dezimalpunkt erlaubt ist.
      */
     public void pressDotKey() {
-        if(!screen.contains(".")) screen = screen + ".";
+        if (!screen.contains(".")) {
+            if (screen.equals("0") || screen.isEmpty()) {
+                screen = "0.";
+            } else {
+                screen = screen + ".";
+            }
+        }
     }
+
 
     /**
      * Empfängt den Befehl der gedrückten Vorzeichenumkehrstaste ("+/-").
@@ -149,9 +162,11 @@ public class Calculator {
      * Zeigt der Bildschirm bereits einen negativen Wert mit führendem Minus an, dann wird dieses
      * entfernt und der Inhalt fortan als positiv interpretiert.
      */
+
     public void pressNegativeKey() {
         screen = screen.startsWith("-") ? screen.substring(1) : "-" + screen;
     }
+
 
     /**
      * Empfängt den Befehl der gedrückten "="-Taste.
